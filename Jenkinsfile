@@ -1,13 +1,13 @@
 pipeline {
     agent any
     environment{
-    APP_ENV="build APP_ENV"
+    APP_ENV="build APP_ENV_try"
     }
     stages {
         stage('Build') {
             steps {
                 echo 'Building...'
-                echo '${APP_ENV}'
+                echo  "${APP_ENV}"
                 bat 'python build/build_script.py'
             }
         }
