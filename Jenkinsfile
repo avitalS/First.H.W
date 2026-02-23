@@ -1,20 +1,21 @@
 pipeline {
     agent any
 
-    // 1. הגדרת זמן ריצה מקסימלי (שיניתי ל-30 שניות כדי שהריצה לא תיקטע סתם)
+    // הגדרת זמן ריצה מקסימלי (Timeout) - ירוץ עד 30 שניות כדי שלא ייכשל סתם
     options {
-        timeout(time: 20, unit: 'SECONDS')
+        timeout(time: 30, unit: 'SECONDS')
     }
+
     environment {
         APP_ENV = "build APP_ENV_try"
+        // משיכת שם המשתמש והסיסמה מה-ID שהגדרת בג'נקינס
         MY_SECRET = credentials('my password')
     }
 
     stages {
         stage('Build') {
             steps {
-                echo 'Building...'
-                echo "Current Env: ${env.APP_ENV}"
+                echo "Building in ${env.APP_ENV}..."
                 // הדפסת שם המשתמש מה-Credentials
                 echo "Username: ${env.MY_SECRET_USR}"
                 bat 'python build/build_script.py'
@@ -24,6 +25,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing...'
+                // פתרון שגיאת ה-src שראינו קודם
                 bat 'set PYTHONPATH=. && python test/test_script.py'
             }
         }
@@ -36,10 +38,9 @@ pipeline {
         }
     }
 
-    // בלוק סיום תמיד ידפיס הודעה בסוף הריצה
     post {
         always {
-            echo 'Finished Pipeline execution.'
+            echo 'Pipeline finished execution.'
         }
     }
 }
