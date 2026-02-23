@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+
+    // הגדרת זמן ריצה מקסימלי
+    options {
+        timeout(time: 30, unit: 'SECONDS')
+    }
+
+    // הגדרת משתני סביבה וסיסמאות
+    environment {
+        APP_ENV = "build APP_ENV_try"
+        // ודאי שה-ID הזה תואם בדיוק למה שהגדרת בג'נקינס
+        MY_SECRET = credentials('my password')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo "Building in environment: ${env.APP_ENV}"
+                echo "Executing as user: ${env.MY_SECRET_USR}"
+                bat 'python build/build_script.py'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Starting Tests...'
+                // הוספת ה-PYTHONPATH פותרת את שגיאת ה-src
+                bat 'set PYTHONPATH=. && python test/test_script.py'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Starting Deployment...'
+                bat 'python deploy/deploy_script.py'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished.'
+        }
+    }
+}
